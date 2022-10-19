@@ -1,0 +1,98 @@
+Approach 1: TC-O(2N) SC-O(N) Using String methods
+
+ public int lengthOfLongestSubstring(String s) {
+        String res=""; //will contain all the possible substrings without repetition
+        int ans=1;
+        int count=res.length();
+        int i=0;
+        int n=s.length();
+        if(s.isEmpty()){
+            return 0;
+        }
+        while(i<n){
+            if(!res.contains(s.substring(i,i+1))){
+                res+=s.charAt(i);
+                count=res.length();
+                ans=Math.max(count,ans);
+            }
+            else{
+                
+                res=res.replace(res.substring(0,res.indexOf(s.charAt(i))+1),"");
+                res+=s.charAt(i);
+                
+            }
+            i++;
+        }
+       return ans; 
+    }
+    
+ 
+ Approach 2: TC-O(2N) SC-O(K) K- is constant i.e num of chars in ASCII i.e if chars in s is a-z then 26, if all ascii values then 256
+ 
+ //usign sliding window and HashMAP
+ 
+ int longestUniqueSubsttr(String s){
+        HashMap<Character,Integer> freq=new HashMap<>();
+        //this hashmap will store char and its freq in a particular window
+        //size of the map = window size means there is no repeating char in the window
+        //so that is a valid window/substring
+        int l=0,r=0;
+        int ans=1;
+        int n=s.length();
+        while(r<n){
+            char c=s.charAt(r);
+            freq.put(c,freq.getOrDefault(c,0)+1);
+            //map size < window size(r-l+1) means we have to shrink the window
+            //untill the window does not contain any repeating chars
+            //basically untill mapsize== window size
+            while(freq.size()<r-l+1){
+                char i=s.charAt(l);
+                freq.put(i,freq.get(i)-1);
+                if(freq.get(i)==0){
+                    freq.remove(i);
+                }
+                l++;
+            }
+            ans=Math.max(r-l+1,ans);
+            r++;
+        }
+        return ans;
+    }
+   
+   
+ Approach 3: Best APproach : TC- O(N) - SC-O(256)
+ //Using sliding window and charset of mapping char with the index at which the char occurs
+ 
+  public int lengthOfLongestSubstring(String s) {
+        if(s.length()==0){
+            return 0;
+        }
+        //seen tracks the chars that i have allready seen during my traversal
+        int[] seen=new int[256]; //as chars of S are all valid ascii chars
+        //by default all indexes of seen is -1
+        Arrays.fill(seen,-1);
+        
+        int l=0; //i= start of window
+        //r is end of window
+        int ans=1;
+        for(int r=0;r<s.length();r++){
+            char c=s.charAt(r);
+            //if char c has allready been seen earlier
+            if(seen[c]!=-1){
+                //we need to check whether it is occuring in the curr window
+                //or it has occured out of window to the left of windowi
+                l=Math.max(seen[c]+1,l);
+                //if seen[c] tells the index at which we earlier encountered char c
+                //so if seen[c]+1>i we shift i by i=seen[c]+1, skipping all the chars
+                //b/w curr i and index of occ of c (seen[c])
+                //else if seen[c]+1==i , we have seen c to the left of window , so it                     
+                //doesn't cause any repetition in curr window, hence our window start                    
+                //remains i
+            }
+            ans=Math.max(r-l+1,ans);
+            seen[c]=r; //seen[c] stores the char:index combination
+            
+        }
+        return ans;
+        
+    }
